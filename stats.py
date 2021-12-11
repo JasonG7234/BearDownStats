@@ -10,8 +10,35 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1btjUrMpjFoN6VNThFfFGVacxf2H5hWXpHnS7emWLv2Y'
-SAMPLE_RANGE_NAME = 'Class Data!A3:Q140'
+SAMPLE_RANGE_NAME = 'Winter 2021 - 2022 Total Player Stats!A3:Q140'
 
+def table_start_html():
+    return '''
+        <table class="stats" id="infoTable" cellspacing="0" cellpadding="0">
+            <thead>
+                <th><span>Name</span></th>
+                <th><span>GP</span></th>
+                <th><span>Points</span></th>
+                <th><span>Rebounds</span></th>
+                <th><span>Assists</span></th>
+                <th><span>Steals</span></th>
+                <th><span>Blocks</span></th>
+                <th><span>Turnovers</span></th>
+                <th><span>FGM</span></th>
+                <th><span>FGA</span></th>
+                <th><span>FG%</span></th>
+                <th><span>3PM</span></th>
+                <th><span>3PA</span></th>
+                <th><span>3P%</span></th>
+            </thead>
+            <tbody>
+    '''
+
+def table_end_html():
+    return '''
+        </tbody>
+        </table>
+    '''
 
 def main():
     """Shows basic usage of the Sheets API.
@@ -42,15 +69,20 @@ def main():
     result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
                                 range=SAMPLE_RANGE_NAME).execute()
     values = result.get('values', [])
-
+    
+    html = '''
+        <div id="wrapper">
+    '''
     if not values:
         print('No data found.')
     else:
-        print('Name, Major:')
         for row in values:
-            # Print columns A and E, which correspond to indices 0 and 4.
-            print('%s, %s' % (row[0], row[4]))
+            if (len(row) == 1):
+                print("Current team is: " + row[0])
 
+    html += '''
+        </div>
+    '''
 
 if __name__ == '__main__':
     main()
