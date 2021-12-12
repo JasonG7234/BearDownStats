@@ -1,9 +1,12 @@
 from __future__ import print_function
 import os.path
+import smtplib
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
@@ -11,6 +14,29 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1btjUrMpjFoN6VNThFfFGVacxf2H5hWXpHnS7emWLv2Y'
 SAMPLE_RANGE_NAME = 'Winter 2021 - 2022 Total Player Stats!A3:Q140'
+
+def send_email(data):
+	SUBJECT = "BearDown Stats HTML"
+	FROMADDR = "variousemaillists@gmail.com"
+	FROMPASSWORD = "***" 
+	TOADDR = ['JasonG7234@gmail.com']
+	
+	MESSAGE = MIMEMultipart('alternative')
+	MESSAGE['subject'] = SUBJECT
+	MESSAGE['From'] = FROMADDR
+
+	HTML_BODY = MIMEText(data, 'html') #Record MIME type text/html
+	MESSAGE.attach(HTML_BODY)
+	
+	server = smtplib.SMTP('smtp.gmail.com:587')
+	server.starttls()
+	server.login(FROMADDR, FROMPASSWORD)
+	
+	for email in TOADDR:
+		MESSAGE['To'] = email
+		server.sendmail(FROMADDR, [email], MESSAGE.as_string())
+		
+	server.quit()
 
 def table_start_html():
     return '''
@@ -77,12 +103,22 @@ def main():
         print('No data found.')
     else:
         for row in values:
-            if (len(row) == 1):
+            if (len(row) == 1 and row[0] != "Substitues"):
+                html += table_end_html()
+                html += "<h2>" + row[0] + "</h2>"
+                html += table_start_html()
                 print("Current team is: " + row[0])
-
+            else:
+                html += "<tr>"
+                for item in row:
+                    html += "<td>" + item + "</td>"
+                html += "</tr>"
+    html += table_end_html() 
     html += '''
         </div>
     '''
+
+    send_email(html)
 
 if __name__ == '__main__':
     main()
