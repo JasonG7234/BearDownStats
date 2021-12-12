@@ -56,6 +56,10 @@ def table_start_html():
                 <th><span>3PM</span></th>
                 <th><span>3PA</span></th>
                 <th><span>3P%</span></th>
+		<th><span>FTM</span></th>
+		<th><span>FTA</span></th>
+		<th><span>FT%</span></th>
+		
             </thead>
             <tbody>
     '''
