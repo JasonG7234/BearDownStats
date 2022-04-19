@@ -13,7 +13,7 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1btjUrMpjFoN6VNThFfFGVacxf2H5hWXpHnS7emWLv2Y'
-SAMPLE_RANGE_NAME = 'Winter 2021 - 2022 Total Player Stats!A3:Q140'
+SAMPLE_RANGE_NAME = 'Master Sheet Spring 2022!A2:T263'
 
 def send_email(data):
 	SUBJECT = "BearDown Stats HTML"
@@ -41,26 +41,6 @@ def send_email(data):
 def table_start_html():
     return '''
         <table class="stats" id="infoTable" cellspacing="0" cellpadding="0">
-            <thead>
-                <th><span>Name</span></th>
-                <th><span>GP</span></th>
-                <th><span>Points</span></th>
-                <th><span>Rebounds</span></th>
-                <th><span>Assists</span></th>
-                <th><span>Steals</span></th>
-                <th><span>Blocks</span></th>
-                <th><span>Turnovers</span></th>
-                <th><span>FGM</span></th>
-                <th><span>FGA</span></th>
-                <th><span>FG%</span></th>
-                <th><span>3PM</span></th>
-                <th><span>3PA</span></th>
-                <th><span>3P%</span></th>
-		<th><span>FTM</span></th>
-		<th><span>FTA</span></th>
-		<th><span>FT%</span></th>
-		
-            </thead>
             <tbody>
     '''
 
@@ -83,11 +63,12 @@ def main():
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+            creds.refresh(Request()).with_traceback(True)
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', 
+                SCOPES)
+            flow.authorization_url(prompt='consent')
+            creds = flow.run_local_server(port=58371)
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
@@ -107,7 +88,7 @@ def main():
         print('No data found.')
     else:
         for row in values:
-            if (len(row) == 1 and row[0] != "Substitues"):
+            if (len(row) <= 1 and row[0] != "Substitues"):
                 html += table_end_html()
                 html += "<h2>" + row[0] + "</h2>"
                 html += table_start_html()
